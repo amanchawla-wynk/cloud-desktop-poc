@@ -36,16 +36,16 @@ graph TB
         end
     end
 
-    ClientApp -->|REST / JWT| API
-    ClientApp -->|HTML5 / WebSocket| Guac
+    ClientApp -->|"REST / JWT"| API
+    ClientApp -->|"HTML5 / WebSocket"| Guac
     
-    API -->|Validate Token| AuthService
-    API -->|Manage State| DB
-    API -->|PVE API (HTTPS)| PVE1
-    API -->|Config Connection| Guac
+    API -->|"Validate Token"| AuthService
+    API -->|"Manage State"| DB
+    API -->|"PVE API (HTTPS)"| PVE1
+    API -->|"Config Connection"| Guac
     
-    Guac -->|RDP/SPICE| PVE1
-    PVE1 -->|Read/Write| Storage
+    Guac -->|"RDP / SPICE"| PVE1
+    PVE1 -->|"Read / Write"| Storage
 ```
 
 ---
