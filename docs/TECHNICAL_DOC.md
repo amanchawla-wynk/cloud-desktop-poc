@@ -10,42 +10,78 @@
 
 The Cloud Desktop system is designed as a modular, API-driven architecture that orchestrates the provisioning and management of virtual desktop infrastructure (VDI). It acts as a middleware layer between your client application and the underlying virtualization infrastructure.
 
-### High-Level Diagram
+### System Interaction Flow
+
+The following sequence diagram shows how components interact during desktop provisioning and user access:
 
 ```mermaid
-graph TB
-    subgraph "Existing Ecosystem"
-        ClientApp[Your Existing App]
-        AuthService[Your Auth Service]
-    end
+sequenceDiagram
+    participant User as Your App<br/>(Mobile/Web/TV)
+    participant Auth as Your Auth<br/>Service
+    participant API as Desktop<br/>Service API
+    participant DB as State<br/>Database
+    participant Proxmox as Proxmox<br/>Cluster
+    participant Guac as Guacamole<br/>Gateway
+    participant VM as Virtual<br/>Machine
 
-    subgraph "Cloud Desktop System"
-        API[Desktop Service API]
-        DB[(State Database)]
-    end
-
-    subgraph "Infrastructure Layer"
-        subgraph "Virtualization Cluster"
-            PVE1[Proxmox Node 1]
-            PVE2[Proxmox Node 2]
-            Storage[(Shared Storage)]
-        end
-        
-        subgraph "Access Gateway"
-            Guac[Apache Guacamole]
-        end
-    end
-
-    ClientApp -->|"REST / JWT"| API
-    ClientApp -->|"HTML5 / WebSocket"| Guac
+    Note over User,VM: Desktop Provisioning Flow
     
-    API -->|"Validate Token"| AuthService
-    API -->|"Manage State"| DB
-    API -->|"PVE API (HTTPS)"| PVE1
-    API -->|"Config Connection"| Guac
+    User->>API: POST /desktops<br/>(with JWT token)
+    API->>Auth: Validate JWT
+    Auth-->>API: Token Valid
     
-    Guac -->|"RDP / SPICE"| PVE1
-    PVE1 -->|"Read / Write"| Storage
+    API->>Proxmox: Get next VM ID
+    Proxmox-->>API: VM ID: 1001
+    
+    API->>DB: Save desktop (PENDING)
+    API-->>User: 202 Accepted<br/>{id: 1, status: PENDING}
+    
+    API->>Proxmox: Clone template VM
+    Note over Proxmox: Creating linked clone...<br/>(30-45 seconds)
+    Proxmox-->>API: Clone task started
+    
+    API->>DB: Update status (PROVISIONING)
+    
+    API->>Proxmox: Poll task status
+    Proxmox-->>API: Task complete
+    
+    API->>Proxmox: Start VM
+    Proxmox->>VM: Power on
+    VM-->>Proxmox: Starting...
+    
+    API->>DB: Update status (STARTING)
+    
+    API->>Proxmox: Get VM IP (via Guest Agent)
+    Note over Proxmox,VM: Waiting for network...<br/>(10-20 seconds)
+    Proxmox-->>API: IP: 192.168.100.100
+    
+    API->>DB: Update status (CONFIGURING)
+    
+    API->>Guac: Create connection<br/>(RDP/SPICE to 192.168.100.100)
+    Guac-->>API: Connection ID: conn-xyz
+    
+    API->>DB: Update status (RUNNING)
+    
+    Note over User,VM: Desktop Access Flow
+    
+    User->>API: GET /desktops/1/connect
+    API->>DB: Fetch desktop
+    DB-->>API: Desktop details
+    API->>Guac: Generate secure token
+    Guac-->>API: One-time token
+    API-->>User: Connection URL<br/>(with embedded token)
+    
+    User->>Guac: Load URL in WebView
+    Guac->>Guac: Validate token
+    Guac->>VM: Establish RDP/SPICE
+    VM-->>Guac: Desktop stream
+    Guac-->>User: HTML5 stream<br/>(WebSocket)
+    
+    Note over User,VM: User interacts with desktop
+    User->>Guac: Mouse/Keyboard input
+    Guac->>VM: Forward input
+    VM-->>Guac: Screen updates
+    Guac-->>User: Render in browser
 ```
 
 ---
