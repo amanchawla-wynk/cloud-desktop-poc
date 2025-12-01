@@ -1,0 +1,43 @@
+# Mock Profile Configuration
+# Activate this profile to run the application without real Proxmox/Guacamole infrastructure
+# Usage: ./mvnw spring-boot:run -Dspring-boot.run.profiles=mock
+
+# Mock Timing Configuration (in milliseconds)
+mock:
+  vm:
+    clone-delay-min: 30000    # 30 seconds
+    clone-delay-max: 45000    # 45 seconds
+    start-delay-min: 20000    # 20 seconds
+    start-delay-max: 30000    # 30 seconds
+    stop-delay-min: 10000     # 10 seconds
+    stop-delay-max: 15000     # 15 seconds
+    ip-delay-min: 10000       # 10 seconds
+    ip-delay-max: 20000       # 20 seconds
+  connection:
+    create-delay: 5000        # 5 seconds
+
+# Mock Proxmox Configuration (not actually used, but kept for consistency)
+proxmox:
+  url: http://localhost:8006
+  node: mock-node
+  username: mock@pam
+  token-id: mock-token-id
+  token-secret: mock-token-secret
+  template-vm-id: 9000
+  default-cores: 2
+  default-memory-mb: 4096
+
+# Mock Guacamole Configuration
+guacamole:
+  url: http://localhost:8080/guacamole-mock
+  username: mock-admin
+  password: mock-password
+  data-source: mock-datasource
+  default-protocol: SPICE
+
+# Logging for Mock Mode
+logging:
+  level:
+    com.xstream.clouddesktop: DEBUG
+    com.xstream.clouddesktop.client.proxmox.MockProxmoxClient: INFO
+    com.xstream.clouddesktop.client.guacamole.MockGuacamoleClient: INFO

@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloud Desktop - Diagnostics</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: white;
+            background: #667eea;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .success {
+            background: #f0fff4;
+            border: 1px solid #9ae6b4;
+            color: #22543d;
+        }
+
+        .error {
+            background: #fff5f5;
+            border: 1px solid #fc8181;
+            color: #c53030;
+        }
+
+        .info {
+            background: #ebf8ff;
+            border: 1px solid #90cdf4;
+            color: #2c5282;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .badge-ok {
+            background: #9ae6b4;
+            color: #22543d;
+        }
+
+        .badge-failed {
+            background: #fc8181;
+            color: #742a2a;
+        }
+
+        .config-item {
+            margin: 10px 0;
+            padding: 10px;
+            background: #f7fafc;
+            border-radius: 5px;
+        }
+
+        .config-item strong {
+            color: #2d3748;
+        }
+
+        .nav-link {
+            display: inline-block;
+            margin-top: 15px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .nav-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 System Diagnostics</h1>
+            <p class="subtitle">Test connectivity to Proxmox and Guacamole services</p>
+            <a href="/index.html" class="nav-link">← Back to Main Interface</a>
+        </div>
+
+        <div class="card">
+            <h2>Quick Tests</h2>
+            <button onclick="testAll()">Test All Services</button>
+            <button onclick="testProxmox()">Test Proxmox Only</button>
+            <button onclick="testGuacamole()">Test Guacamole Only</button>
+            <div id="quickResult" class="result hidden"></div>
+        </div>
+
+        <div class="card">
+            <h2>Proxmox VE Connection</h2>
+            <p style="color: #666; margin-bottom: 15px;">Tests connection to Proxmox virtualization platform</p>
+            <button onclick="testProxmoxDetailed()">Run Detailed Test</button>
+            <div id="proxmoxResult" class="result hidden"></div>
+        </div>
+
+        <div class="card">
+            <h2>Apache Guacamole Connection</h2>
+            <p style="color: #666; margin-bottom: 15px;">Tests connection to Guacamole remote desktop gateway</p>
+            <button onclick="testGuacamoleDetailed()">Run Detailed Test</button>
+            <div id="guacamoleResult" class="result hidden"></div>
+        </div>
+
+        <div class="card">
+            <h2>Configuration Help</h2>
+            <div class="info result">
+<strong>Common Issues:</strong>
+
+1. <strong>Connection Refused</strong>
+   - Ensure Proxmox/Guacamole servers are running
+   - Check firewall rules allow connections
+   - Verify URLs in application-local.yml
+
+2. <strong>401 Unauthorized (Proxmox)</strong>
+   - Verify token-id format: username@realm!token-name
+   - Example: root@pam!cloud-desktop-token
+   - Check token secret is correct
+   - Ensure API token has proper permissions
+
+3. <strong>401 Unauthorized (Guacamole)</strong>
+   - Verify username and password
+   - Default is guacadmin/guacadmin
+   - Check Guacamole is properly configured
+
+4. <strong>404 Not Found</strong>
+   - Verify the service URL is correct
+   - Check the service is accessible at that URL
+
+<strong>Configuration File:</strong>
+Edit: src/main/resources/application-local.yml
+
+Run with: ./mvnw spring-boot:run -Dspring-boot.run.profiles=local
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showResult(elementId, data, isSuccess) {
+            const element = document.getElementById(elementId);
+            element.textContent = JSON.stringify(data, null, 2);
+            element.className = 'result ' + (isSuccess ? 'success' : 'error');
+            element.classList.remove('hidden');
+        }
+
+        async function testAll() {
+            const resultDiv = document.getElementById('quickResult');
+            resultDiv.textContent = 'Testing...';
+            resultDiv.className = 'result info';
+            resultDiv.classList.remove('hidden');
+
+            try {
+                const response = await fetch('/api/diagnostics/all');
+                const data = await response.json();
+                showResult('quickResult', data, response.ok);
+            } catch (error) {
+                showResult('quickResult', { error: error.message }, false);
+            }
+        }
+
+        async function testProxmox() {
+            try {
+                const response = await fetch('/api/diagnostics/proxmox');
+                const data = await response.json();
+                alert(data.status === 'SUCCESS' ? 
+                    '✅ Proxmox connection successful!' : 
+                    '❌ Proxmox connection failed: ' + data.error);
+            } catch (error) {
+                alert('❌ Error: ' + error.message);
+            }
+        }
+
+        async function testGuacamole() {
+            try {
+                const response = await fetch('/api/diagnostics/guacamole');
+                const data = await response.json();
+                alert(data.status === 'SUCCESS' ? 
+                    '✅ Guacamole connection successful!' : 
+                    '❌ Guacamole connection failed: ' + data.error);
+            } catch (error) {
+                alert('❌ Error: ' + error.message);
+            }
+        }
+
+        async function testProxmoxDetailed() {
+            const resultDiv = document.getElementById('proxmoxResult');
+            resultDiv.textContent = 'Testing Proxmox connection...';
+            resultDiv.className = 'result info';
+            resultDiv.classList.remove('hidden');
+
+            try {
+                const response = await fetch('/api/diagnostics/proxmox');
+                const data = await response.json();
+                showResult('proxmoxResult', data, response.ok);
+            } catch (error) {
+                showResult('proxmoxResult', { error: error.message }, false);
+            }
+        }
+
+        async function testGuacamoleDetailed() {
+            const resultDiv = document.getElementById('guacamoleResult');
+            resultDiv.textContent = 'Testing Guacamole connection...';
+            resultDiv.className = 'result info';
+            resultDiv.classList.remove('hidden');
+
+            try {
+                const response = await fetch('/api/diagnostics/guacamole');
+                const data = await response.json();
+                showResult('guacamoleResult', data, response.ok);
+            } catch (error) {
+                showResult('guacamoleResult', { error: error.message }, false);
+            }
+        }
+    </script>
+</body>
+</html>

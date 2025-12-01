@@ -1,0 +1,53 @@
+# Local Development Profile Configuration
+# Activate this profile by running: mvn spring-boot:run -Dspring-boot.run.profiles=local
+# or setting SPRING_PROFILES_ACTIVE=local environment variable
+
+# Proxmox Configuration - Local Development
+proxmox:
+  # Proxmox server URL - Update with your local Proxmox server address
+  # Example: https://192.168.1.100:8006 or https://proxmox.local:8006
+  url: https://localhost:8006
+  
+  # Proxmox node name - Usually 'pve' for single-node setups
+  node: pve
+  
+  # API user - Format: username@realm (e.g., root@pam, apiuser@pve)
+  username: root@pam
+  
+  # API Token ID - Create in Proxmox UI: Datacenter -> Permissions -> API Tokens
+  # Format: username@realm!token-name
+  token-id: root@pam!cloud-desktop-token
+  
+  # API Token Secret - Generated when creating the API token
+  # IMPORTANT: Store securely, this is shown only once in Proxmox UI
+  token-secret: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+  
+  # Template VM ID - ID of the VM template to clone for new desktops
+  # Create a VM template in Proxmox and note its ID
+  template-vm-id: 9000
+  
+  # Default CPU cores for new VMs
+  default-cores: 2
+  
+  # Default RAM in MB for new VMs (4096 = 4GB)
+  default-memory-mb: 4096
+
+# Guacamole Configuration - Local Development
+guacamole:
+  # Guacamole server URL - Update with your local Guacamole server address
+  # Example: http://localhost:8080/guacamole or http://guacamole.local/guacamole
+  url: http://localhost:8081/guacamole
+  
+  # Guacamole admin username - Default is 'guacadmin'
+  username: guacadmin
+  
+  # Guacamole admin password - Default is 'guacadmin', change after first login
+  # IMPORTANT: Use a strong password in production
+  password: guacadmin
+  
+  # Data source type - 'mysql' or 'postgresql' depending on your Guacamole setup
+  data-source: mysql
+  
+  # Default protocol for remote desktop - 'SPICE' or 'VNC'
+  # SPICE offers better performance and features
+  default-protocol: SPICE

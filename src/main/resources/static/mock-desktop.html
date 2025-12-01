@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mock Desktop Viewer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .mock-desktop {
+            background: #2d3748;
+            border-radius: 10px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 1200px;
+            height: 700px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .taskbar {
+            background: #1a202c;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #4a5568;
+        }
+
+        .taskbar-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo {
+            font-size: 24px;
+        }
+
+        .app-icon {
+            width: 32px;
+            height: 32px;
+            background: #4a5568;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .app-icon:hover {
+            background: #667eea;
+        }
+
+        .taskbar-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: #cbd5e0;
+            font-size: 14px;
+        }
+
+        .desktop-content {
+            flex: 1;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+        }
+
+        .welcome-message {
+            text-align: center;
+            color: white;
+        }
+
+        .welcome-message h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #f093fb 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .welcome-message p {
+            font-size: 18px;
+            color: #cbd5e0;
+            margin-bottom: 30px;
+        }
+
+        .demo-apps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+            max-width: 600px;
+        }
+
+        .demo-app {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .demo-app:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-5px);
+        }
+
+        .demo-app-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .demo-app-name {
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .mock-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(240, 147, 251, 0.9);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+            box-shadow: 0 5px 15px rgba(240, 147, 251, 0.4);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="mock-desktop">
+        <div class="taskbar">
+            <div class="taskbar-left">
+                <div class="logo">🖥️</div>
+                <div class="app-icon">📁</div>
+                <div class="app-icon">🌐</div>
+                <div class="app-icon">⚙️</div>
+            </div>
+            <div class="taskbar-right">
+                <span>🔊</span>
+                <span>📶</span>
+                <span id="time"></span>
+            </div>
+        </div>
+        <div class="desktop-content">
+            <div class="mock-badge">🎭 DEMO MODE</div>
+            <div class="welcome-message">
+                <h1>Cloud Desktop</h1>
+                <p>Your virtual desktop is ready!</p>
+                <p style="font-size: 14px; color: #a0aec0;">This is a mock desktop viewer for demonstration purposes</p>
+            </div>
+            <div class="demo-apps">
+                <div class="demo-app">
+                    <div class="demo-app-icon">📝</div>
+                    <div class="demo-app-name">Text Editor</div>
+                </div>
+                <div class="demo-app">
+                    <div class="demo-app-icon">🌐</div>
+                    <div class="demo-app-name">Browser</div>
+                </div>
+                <div class="demo-app">
+                    <div class="demo-app-icon">📊</div>
+                    <div class="demo-app-name">Spreadsheet</div>
+                </div>
+                <div class="demo-app">
+                    <div class="demo-app-icon">🎨</div>
+                    <div class="demo-app-name">Graphics</div>
+                </div>
+                <div class="demo-app">
+                    <div class="demo-app-icon">💻</div>
+                    <div class="demo-app-name">Terminal</div>
+                </div>
+                <div class="demo-app">
+                    <div class="demo-app-name">📁</div>
+                    <div class="demo-app-name">Files</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Update time every second
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            document.getElementById('time').textContent = timeString;
+        }
+
+        updateTime();
+        setInterval(updateTime, 1000);
+
+        // Add click handlers to demo apps
+        document.querySelectorAll('.demo-app').forEach(app => {
+            app.addEventListener('click', () => {
+                alert('This is a mock desktop for demonstration. In a real deployment, this would launch the actual application.');
+            });
+        });
+    </script>
+</body>
+
+</html>
